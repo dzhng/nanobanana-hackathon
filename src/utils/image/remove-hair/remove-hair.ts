@@ -1,4 +1,5 @@
 import dedent from 'dedent';
+
 import { generateImageWithReferences } from '../image-generation/image-generation';
 
 export async function removeHair({
@@ -10,9 +11,10 @@ export async function removeHair({
   width: number;
   height: number;
 }): Promise<ArrayBuffer> {
+  // NOTE: originally the prompt was to remove all the hair and make the person bald, but this was causing issues with the hairline. The newly generated image will have hairline that was wayyy too high.
   return await generateImageWithReferences({
     prompt: dedent`
-      Remove all the hair from this person and headwear (hats, caps, etc.), this person should be bald. Keep everything else the same.
+      Remove all the hair from this person and headwear (hats, caps, etc.), this person should have a very short buzz cut.
 
       You must NOT return the original person image without hair removal.
 
