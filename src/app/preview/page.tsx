@@ -450,7 +450,7 @@ function PreviewPageContent() {
           </div>
         ) : (
           <div className="h-full overflow-x-auto">
-            <div className="flex h-full min-w-full justify-center gap-3 p-4">
+            <div className="flex h-full gap-3 p-4">
               {references.map((reference, index) => (
                 <button
                   key={index}
