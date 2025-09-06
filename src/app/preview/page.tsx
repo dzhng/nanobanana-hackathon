@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ArrowLeftIcon, PencilIcon } from '@heroicons/react/24/outline';
+import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 
 import { useToast } from '@/components/Toast';
 import { useApp } from '@/contexts/AppContext';
@@ -12,7 +12,15 @@ import {
   getReferenceStyles,
   ReferenceStyle,
 } from '@/utils/api';
-import { getTempImage, saveGeneratedImage, UserSettings, setUserSettings, HairColor, Ethnicity, Sex } from '@/utils/storage';
+import {
+  Ethnicity,
+  getTempImage,
+  HairColor,
+  saveGeneratedImage,
+  setUserSettings,
+  Sex,
+  UserSettings,
+} from '@/utils/storage';
 
 // Emoji options matching onboarding
 type EmojiOption = {
@@ -24,43 +32,75 @@ type EmojiOption = {
 const emojiOptions: EmojiOption[] = [
   {
     image: '/images/emojis/female-brown.png',
-    settings: { sex: 'female' as Sex, haircolor: 'brown' as HairColor, ethnicity: 'white' as Ethnicity },
-    label: 'Female • White • Brown Hair'
+    settings: {
+      sex: 'female' as Sex,
+      haircolor: 'brown' as HairColor,
+      ethnicity: 'white' as Ethnicity,
+    },
+    label: 'Female • White • Brown Hair',
   },
   {
-    image: '/images/emojis/female-asian.png', 
-    settings: { sex: 'female' as Sex, haircolor: 'black' as HairColor, ethnicity: 'asian' as Ethnicity },
-    label: 'Female • Asian • Black Hair'
+    image: '/images/emojis/female-asian.png',
+    settings: {
+      sex: 'female' as Sex,
+      haircolor: 'black' as HairColor,
+      ethnicity: 'asian' as Ethnicity,
+    },
+    label: 'Female • Asian • Black Hair',
   },
   {
     image: '/images/emojis/female-blonde.png',
-    settings: { sex: 'female' as Sex, haircolor: 'blonde' as HairColor, ethnicity: 'white' as Ethnicity },
-    label: 'Female • White • Blonde Hair'
+    settings: {
+      sex: 'female' as Sex,
+      haircolor: 'blonde' as HairColor,
+      ethnicity: 'white' as Ethnicity,
+    },
+    label: 'Female • White • Blonde Hair',
   },
   {
     image: '/images/emojis/female-black.png',
-    settings: { sex: 'female' as Sex, haircolor: 'brown' as HairColor, ethnicity: 'black' as Ethnicity },
-    label: 'Female • Black • Brown Hair'
+    settings: {
+      sex: 'female' as Sex,
+      haircolor: 'brown' as HairColor,
+      ethnicity: 'black' as Ethnicity,
+    },
+    label: 'Female • Black • Brown Hair',
   },
   {
     image: '/images/emojis/male-brown.png',
-    settings: { sex: 'male' as Sex, haircolor: 'brown' as HairColor, ethnicity: 'white' as Ethnicity },
-    label: 'Male • White • Brown Hair'
+    settings: {
+      sex: 'male' as Sex,
+      haircolor: 'brown' as HairColor,
+      ethnicity: 'white' as Ethnicity,
+    },
+    label: 'Male • White • Brown Hair',
   },
   {
     image: '/images/emojis/male-asian.png',
-    settings: { sex: 'male' as Sex, haircolor: 'black' as HairColor, ethnicity: 'asian' as Ethnicity },
-    label: 'Male • Asian • Black Hair'
+    settings: {
+      sex: 'male' as Sex,
+      haircolor: 'black' as HairColor,
+      ethnicity: 'asian' as Ethnicity,
+    },
+    label: 'Male • Asian • Black Hair',
   },
   {
     image: '/images/emojis/male-blonde.png',
-    settings: { sex: 'male' as Sex, haircolor: 'blonde' as HairColor, ethnicity: 'white' as Ethnicity },
-    label: 'Male • White • Blonde Hair'
+    settings: {
+      sex: 'male' as Sex,
+      haircolor: 'blonde' as HairColor,
+      ethnicity: 'white' as Ethnicity,
+    },
+    label: 'Male • White • Blonde Hair',
   },
   {
     image: '/images/emojis/male-black.png',
-    settings: { sex: 'male' as Sex, haircolor: 'brown' as HairColor, ethnicity: 'black' as Ethnicity },
-    label: 'Male • Black • Brown Hair'
+    settings: {
+      sex: 'male' as Sex,
+      haircolor: 'brown' as HairColor,
+      ethnicity: 'black' as Ethnicity,
+    },
+    label: 'Male • Black • Brown Hair',
   },
 ];
 
@@ -86,9 +126,11 @@ function PreviewPageContent() {
   const [showFinalImage, setShowFinalImage] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Local editable settings state
-  const [editableSettings, setEditableSettings] = useState<UserSettings | null>(null);
+  const [editableSettings, setEditableSettings] = useState<UserSettings | null>(
+    null,
+  );
 
   // Handle morphing gif transition
   useEffect(() => {
@@ -169,7 +211,7 @@ function PreviewPageContent() {
     };
 
     fetchReferences();
-  }, [router, editableSettings, uri, tempId]);
+  }, [router, editableSettings, uri, tempId, userSettings]);
 
   // Generate hairstyle
   const handleGenerateImage = async () => {
@@ -270,7 +312,9 @@ function PreviewPageContent() {
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               {/* Before Image */}
               <div className="text-center">
-                <h3 className="mb-3 text-lg font-semibold text-gray-900">Before</h3>
+                <h3 className="mb-3 text-lg font-semibold text-gray-900">
+                  Before
+                </h3>
                 <div className="relative aspect-square overflow-hidden rounded-xl">
                   <Image
                     src={uri}
@@ -283,7 +327,9 @@ function PreviewPageContent() {
 
               {/* After Image */}
               <div className="text-center">
-                <h3 className="mb-3 text-lg font-semibold text-gray-900">After</h3>
+                <h3 className="mb-3 text-lg font-semibold text-gray-900">
+                  After
+                </h3>
                 <div className="relative aspect-square overflow-hidden rounded-xl">
                   <Image
                     src={generationResult.generatedImage}
@@ -353,33 +399,33 @@ function PreviewPageContent() {
           <div className="mx-auto max-w-4xl">
             <div className="space-y-4">
               <div className="text-center">
-                <h3 className="text-lg font-semibold text-black">Choose your avatar ✨</h3>
-                <p className="text-sm text-gray-600">Pick the one that matches you best!</p>
+                <h3 className="text-lg font-semibold text-black">
+                  Choose your avatar ✨
+                </h3>
               </div>
-              
+
               <div className="grid grid-cols-4 gap-3 sm:grid-cols-8">
                 {emojiOptions.map((option, index) => (
                   <button
                     key={index}
                     onClick={() => handleEmojiSelection(option)}
-                    className={`rounded-2xl p-3 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                    className={`flex h-16 w-16 items-center justify-center rounded-2xl transition-all duration-200 sm:h-20 sm:w-20 ${
                       editableSettings.sex === option.settings.sex &&
-                      editableSettings.ethnicity === option.settings.ethnicity &&
+                      editableSettings.ethnicity ===
+                        option.settings.ethnicity &&
                       editableSettings.haircolor === option.settings.haircolor
-                        ? 'border-2 border-primary bg-primary shadow-lg focus:ring-primary'
-                        : 'border-2 border-gray-200 bg-white hover:border-primary/50 hover:shadow-md focus:ring-primary/50'
+                        ? 'border-3 border-[#FFFC00] shadow-lg'
+                        : 'border-3 border-gray-200 hover:border-[#FFFC0080] hover:shadow-md'
                     }`}
                     aria-label={option.label}
                   >
-                    <div className="flex items-center justify-center h-10 w-10 sm:h-12 sm:w-12">
-                      <Image
-                        src={option.image}
-                        alt={option.label}
-                        width={48}
-                        height={48}
-                        className="object-contain"
-                      />
-                    </div>
+                    <Image
+                      src={option.image}
+                      alt={option.label}
+                      width={48}
+                      height={48}
+                      className="object-contain"
+                    />
                   </button>
                 ))}
               </div>
@@ -404,7 +450,7 @@ function PreviewPageContent() {
           </div>
         ) : (
           <div className="h-full overflow-x-auto">
-            <div className="flex h-full gap-3 p-4 justify-center min-w-full">
+            <div className="flex h-full min-w-full justify-center gap-3 p-4">
               {references.map((reference, index) => (
                 <button
                   key={index}
