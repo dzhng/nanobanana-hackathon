@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { generateObject } from 'ai';
 import dedent from 'dedent';
+import z from 'zod';
 
+import { gpt5MiniModel } from '@/utils/ai/providers';
 import { createFaceMorphGif } from '@/utils/image/facemorph/face-morph';
-import { removeHair } from '@/utils/image/remove-hair/remove-hair';
-import { relightImage } from '@/utils/image/relight/relight';
 import { generateImageWithReferenceParallel } from '@/utils/image/parallel-generation/parallel-generation';
+import { relightImage } from '@/utils/image/relight/relight';
+import { removeHair } from '@/utils/image/remove-hair/remove-hair';
 
 async function generateHairstyle({
   originalImage,
@@ -12,12 +15,16 @@ async function generateHairstyle({
   widthValue,
   heightValue,
   durationMsValue,
+  shouldEvaluateResult = false,
 }: {
   originalImage: File;
   referenceImages: File[];
   widthValue?: number;
   heightValue?: number;
   durationMsValue?: number;
+
+  // if true, will use gpt5 to evaluate if the new hairstyle is generated correctly. costs extra latency
+  shouldEvaluateResult?: boolean;
 }): Promise<{
   generatedImage: Buffer;
   morphingGif: Buffer | null;
@@ -42,7 +49,7 @@ async function generateHairstyle({
       referenceImage: originalImageArrayBuffer,
       width: finalWidth,
       height: finalHeight,
-    })
+    }),
   ]);
 
   const generatedImage = await generateImageWithReferenceParallel({
@@ -73,6 +80,49 @@ async function generateHairstyle({
     width: finalWidth,
     height: finalHeight,
   });
+
+  if (shouldEvaluateResult) {
+    // use gpt5 to classify if the new hairstyle is generated correctly
+    const classification = await generateObject({
+      model: gpt5MiniModel,
+      messages: [
+        {
+          role: 'user',
+          content: [
+            {
+              type: 'image',
+              image: generatedImage,
+            },
+            {
+              type: 'image',
+              image: relitReference,
+            },
+            {
+              type: 'text',
+              text: dedent`
+              Classify the similarity between the two hairstyles. ONLY compare the hairstyles, not the person or the rest of the image.
+            `,
+            },
+          ],
+        },
+      ],
+      schema: z.object({
+        reason: z.string().describe('The reason for the classification.'),
+        similarity: z
+          .enum(['high', 'medium', 'low'])
+          .describe(
+            'The similarity between the two hairstyles. high means the hairstyles are the same, medium means the hairstyles are similar (same color and style, but maybe different length), low means the hairstyles are different.',
+          ),
+      }),
+    });
+
+    console.info('Classification result:', classification.object);
+    if (classification.object.similarity === 'low') {
+      throw new Error(
+        `The new hairstyle is not generated correctly: ${classification.object.reason}`,
+      );
+    }
+  }
 
   // Create morphing GIF between original and generated images
   const gifOutput = await createFaceMorphGif({
