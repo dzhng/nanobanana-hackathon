@@ -193,63 +193,87 @@ export default function PreviewPage() {
 
       {/* Image Preview */}
       <div className="flex-1 pt-20">
-        <div className="mx-auto max-w-md">
-          <div className="relative aspect-square overflow-hidden rounded-xl">
-            {/* Show morphing gif during generation */}
-            {generationResult?.morphingGif && !showFinalImage && (
-              <Image
-                src={generationResult.morphingGif}
-                alt="Morphing animation"
-                fill
-                className="object-cover"
-                unoptimized
-              />
-            )}
-
-            {/* Show final generated image */}
-            {showFinalImage && generationResult?.generatedImage && (
-              <Image
-                src={generationResult.generatedImage}
-                alt="Generated hairstyle"
-                fill
-                className="object-cover"
-              />
-            )}
-
-            {/* Show original image when no generation in progress */}
-            {!generationResult && (
-              <Image
-                src={uri}
-                alt="Original photo"
-                fill
-                className="object-cover"
-              />
-            )}
-
-            {/* Loading overlay during generation */}
-            {generating && !generationResult?.morphingGif && (
-              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/50">
-                <div className="flex flex-col items-center gap-4">
-                  {/* Spinning loader */}
-                  <div className="relative">
-                    <div className="h-16 w-16 animate-spin rounded-full border-4 border-white/30 border-t-white"></div>
-                    <div className="absolute inset-2 animate-ping rounded-full border-4 border-white/20"></div>
-                  </div>
-
-                  {/* Loading text */}
-                  <div className="text-center text-white">
-                    <p className="mb-2 text-lg font-semibold">
-                      Generating your hairstyle
-                    </p>
-                    <p className="text-sm opacity-90">
-                      This may take up to a minute...
-                    </p>
-                  </div>
+        {/* Show side-by-side comparison when we have a generated result */}
+        {showFinalImage && generationResult?.generatedImage ? (
+          <div className="mx-auto max-w-4xl px-4">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              {/* Before Image */}
+              <div className="text-center">
+                <h3 className="mb-3 text-lg font-semibold text-gray-900">Before</h3>
+                <div className="relative aspect-square overflow-hidden rounded-xl">
+                  <Image
+                    src={uri}
+                    alt="Original photo"
+                    fill
+                    className="object-cover"
+                  />
                 </div>
               </div>
-            )}
+
+              {/* After Image */}
+              <div className="text-center">
+                <h3 className="mb-3 text-lg font-semibold text-gray-900">After</h3>
+                <div className="relative aspect-square overflow-hidden rounded-xl">
+                  <Image
+                    src={generationResult.generatedImage}
+                    alt="Generated hairstyle"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
+        ) : (
+          /* Single image view for original, morphing, or loading states */
+          <div className="mx-auto max-w-md">
+            <div className="relative aspect-square overflow-hidden rounded-xl">
+              {/* Show morphing gif during generation */}
+              {generationResult?.morphingGif && !showFinalImage && (
+                <Image
+                  src={generationResult.morphingGif}
+                  alt="Morphing animation"
+                  fill
+                  className="object-cover"
+                  unoptimized
+                />
+              )}
+
+              {/* Show original image when no generation in progress */}
+              {!generationResult && (
+                <Image
+                  src={uri}
+                  alt="Original photo"
+                  fill
+                  className="object-cover"
+                />
+              )}
+
+              {/* Loading overlay during generation */}
+              {generating && !generationResult?.morphingGif && (
+                <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/50">
+                  <div className="flex flex-col items-center gap-4">
+                    {/* Spinning loader */}
+                    <div className="relative">
+                      <div className="h-16 w-16 animate-spin rounded-full border-4 border-white/30 border-t-white"></div>
+                      <div className="absolute inset-2 animate-ping rounded-full border-4 border-white/20"></div>
+                    </div>
+
+                    {/* Loading text */}
+                    <div className="text-center text-white">
+                      <p className="mb-2 text-lg font-semibold">
+                        Generating your hairstyle
+                      </p>
+                      <p className="text-sm opacity-90">
+                        This may take up to a minute...
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Reference Style Selector */}
