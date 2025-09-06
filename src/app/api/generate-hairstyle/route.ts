@@ -7,7 +7,7 @@ import { gpt5MiniModel } from '@/utils/ai/providers';
 import { createFaceMorphGif } from '@/utils/image/face-morph';
 import { generateImageWithReferences } from '@/utils/image/image-generation';
 
-async function generateHairstyle({
+export async function generateHairstyle({
   originalImage,
   referenceImages,
   widthValue,
