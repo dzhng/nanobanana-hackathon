@@ -7,7 +7,7 @@ import { gpt5MiniModel } from '@/utils/ai/providers';
 import { createFaceMorphGif } from '@/utils/image/face-morph';
 import { generateImageWithReferences } from '@/utils/image/image-generation';
 
-export async function generateHairstyle({
+async function generateHairstyle({
   originalImage,
   referenceImages,
   widthValue,
@@ -58,7 +58,7 @@ export async function generateHairstyle({
       - The output image's style, lighting, shadows, reflections, and camera perspective must exactly match the original image. Only modify the hairstyle, nothing else.
       - The added hairstyle should exactly match the reference image's hairstyle's length, size, color, style, and parting (e.g., left, right, center), even if it looks unusual or unrealistic. 
       - Make sure the length of the new hairstyle matches the length of the reference hairstyle. E.g. if the reference hairstyle extends down past the person's shoulders, the new hairstyle should also extend down past the person's shoulders.
-      - Do not just copy and paste the hairstyle. You must intelligently re-render it to fit the context. Adjust the hairstyle's perspective and orientation to the original person's perspective, scale it appropriately, and ensure it casts realistic shadows and have proper lighting according to the original image's light sources.
+      - Do not just copy and paste the hairstyle. You must intelligently re-render it to fit the scene of the original image. Adjust the hairstyle's perspective and orientation to the original person's perspective, scale it appropriately, and ensure it casts realistic shadows and have proper lighting according to the original image's light sources. The new hairstyle should look like it is part of the original image.
       - You must NOT return the original person image without hairstyle placement. Do NOT return a bald person. The new hairstyle must be always present in the composite image.
 
       The output should ONLY be the final, composed image. Do not add any text or explanation.
@@ -128,6 +128,49 @@ export async function generateHairstyle({
       ? Buffer.from(gifOutput.outputImage)
       : null,
   };
+}
+
+export async function generateHairstyleWithRetry({
+  originalImage,
+  referenceImages,
+  widthValue,
+  heightValue,
+  durationMsValue,
+  maxRetries = 2,
+}: {
+  originalImage: File;
+  referenceImages: File[];
+  widthValue?: number;
+  heightValue?: number;
+  durationMsValue?: number;
+  maxRetries?: number;
+}): Promise<{
+  generatedImage: Buffer;
+  morphingGif: Buffer | null;
+}> {
+  let lastError: Error | undefined;
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await generateHairstyle({
+        originalImage,
+        referenceImages,
+        widthValue,
+        heightValue,
+        durationMsValue,
+      });
+    } catch (error) {
+      lastError = error as Error;
+      console.error(`generateHairstyle attempt ${attempt} failed:`, error);
+
+      if (attempt === maxRetries) {
+        throw lastError;
+      }
+    }
+  }
+
+  // This should never be reached, but TypeScript requires it
+  throw lastError!;
 }
 
 export const runtime = 'nodejs';
@@ -213,30 +256,13 @@ export async function POST(req: NextRequest): Promise<
       heightValue = parsedHeight;
     }
 
-    // Retry generateHairstyle if it fails
-    let result;
-    let lastError;
-    const maxRetries = 2;
-
-    for (let attempt = 1; attempt <= maxRetries; attempt++) {
-      try {
-        result = await generateHairstyle({
-          originalImage,
-          referenceImages,
-          widthValue,
-          heightValue,
-          durationMsValue,
-        });
-        break; // Success, exit retry loop
-      } catch (error) {
-        lastError = error;
-        console.error(`generateHairstyle attempt ${attempt} failed:`, error);
-
-        if (attempt === maxRetries) {
-          throw lastError; // Re-throw the last error if all retries failed
-        }
-      }
-    }
+    const result = await generateHairstyleWithRetry({
+      originalImage,
+      referenceImages,
+      widthValue,
+      heightValue,
+      durationMsValue,
+    });
 
     // Convert buffers to base64 for JSON response
     const generatedImageBase64 = result!.generatedImage.toString('base64');

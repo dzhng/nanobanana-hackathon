@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { describe, it } from 'node:test';
 
-import { generateHairstyle } from '../route';
+import { generateHairstyleWithRetry } from '../route';
 
 // Helper function to create a File object from a file path
 function createFileFromPath(filePath: string, fileName: string): File {
@@ -30,7 +30,7 @@ describe('generateHairstyle', () => {
     const startTime = performance.now();
 
     // Call generateHairstyle function
-    const result = await generateHairstyle({
+    const result = await generateHairstyleWithRetry({
       originalImage,
       referenceImages: [referenceImage],
       widthValue: 400,
