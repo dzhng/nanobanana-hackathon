@@ -65,17 +65,17 @@ async function generateHairstyle({
   const generatedImage = await generateImageWithReferenceParallel({
     prompt: dedent`
       # Role:
-      You are an expert photo editor. Your task is to take an image of a person and seamlessly replace their current hairstyle with the reference hairstyle. The new hairstyle should look like it is part of the original image.
+      You are an expert photo editor. Your task is to replace the current hairstyle of a person with a new reference hairstyle. The new hairstyle should look like it is part of the original image.
 
       # Specifications:
 
       ## Original image:
       The first image provided. Replace this image's hairstyle with the reference hairstyle.
 
-      ## Reference hairstyle:
+      ## New hairstyle reference image:
       The second image provided.
 
-      ## Reference hairstyle description:
+      ## New hairstyle description:
       ${toXML(referenceHairDescription)}
 
       ## Final Image Requirements:
