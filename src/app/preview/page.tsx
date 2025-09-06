@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
@@ -16,7 +16,7 @@ import { getTempImage, saveGeneratedImage } from '@/utils/storage';
 
 const GifDurationMs = 1000;
 
-export default function PreviewPage() {
+function PreviewPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const tempId = searchParams.get('tempId');
@@ -331,5 +331,26 @@ export default function PreviewPage() {
         </button>
       </div>
     </div>
+  );
+}
+
+export default function PreviewPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-white">
+          <div className="text-center">
+            <div className="flex flex-col items-center gap-4">
+              <div className="relative">
+                <div className="border-primary/30 border-t-primary h-16 w-16 animate-spin rounded-full border-4"></div>
+              </div>
+              <p className="text-lg text-gray-500">Loading...</p>
+            </div>
+          </div>
+        </div>
+      }
+    >
+      <PreviewPageContent />
+    </Suspense>
   );
 }
