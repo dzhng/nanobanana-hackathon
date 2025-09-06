@@ -65,12 +65,12 @@ async function generateHairstyle({
   const generatedImage = await generateImageWithReferenceParallel({
     prompt: dedent`
       # Role:
-      You are an expert photo editor. Your task is to take an image of a person and seamlessly replace their current hairstyle with the reference hairstyle and return a new composite image.
+      You are an expert photo editor. Your task is to take an image of a person and seamlessly replace their current hairstyle with the reference hairstyle. The new hairstyle should look like it is part of the original image.
 
       # Specifications:
 
       ## Original image:
-      The first image provided. Replace this image's hairstyle with the reference hairstyle and return a new composite image.
+      The first image provided. Replace this image's hairstyle with the reference hairstyle.
 
       ## Reference hairstyle:
       The second image provided.
@@ -84,7 +84,7 @@ async function generateHairstyle({
       - Make sure the length of the new hairstyle matches the length of the reference hairstyle. E.g. if the reference hairstyle extends down past the person's shoulders, the new hairstyle should also extend down past the person's shoulders.
       - Make sure the hairline matches the reference hairstyle's hairline, do not make the hairline too high or too low.
       - Do not just copy and paste the hairstyle. You must intelligently re-render it to fit the scene of the original image. Adjust the hairstyle's perspective and orientation to the original person's perspective, scale it appropriately, and ensure it casts realistic shadows and have proper lighting according to the original image's light sources. The new hairstyle should look like it is part of the original image.
-      - You must NOT return the original person image without adding the hairstyle. The new hairstyle must be always present in the composite image.
+      - You must NOT return the original person image without adding the hairstyle. The new hairstyle must be always present in the final image.
 
       The output should ONLY be the final, composed image. Do not add any text or explanation.
     `,
