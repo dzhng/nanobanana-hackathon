@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { describe, it } from 'node:test';
 
-import { relightImage } from './relight';
+import { removeHair } from './remove-hair';
 
 // Helper function to create an ArrayBuffer from a file path
 function createArrayBufferFromPath(filePath: string): ArrayBuffer {
@@ -14,27 +14,22 @@ function createArrayBufferFromPath(filePath: string): ArrayBuffer {
   ) as ArrayBuffer;
 }
 
-describe('relightImage', () => {
-  it('should relight image to match reference lighting', async () => {
-    // Load the image to relight
-    const imageToRelightPath = path.join(__dirname, 'image-to-relight.jpeg');
-    const imageToRelight = createArrayBufferFromPath(imageToRelightPath);
-
-    // Load the reference image
-    const referenceImagePath = path.join(__dirname, 'reference.jpeg');
-    const referenceImage = createArrayBufferFromPath(referenceImagePath);
+describe('removeHair', () => {
+  it('should remove hair from the input image', async () => {
+    // Load the input image
+    const inputImagePath = path.join(__dirname, 'input.jpeg');
+    const inputImage = createArrayBufferFromPath(inputImagePath);
 
     // Start timing
     const startTime = performance.now();
 
-    // Call relightImage function
-    const result = await relightImage({
-      imageToRelight,
-      referenceImage,
-      width: 400,
-      height: 400,
+    // Call removeHair function
+    const result = await removeHair({
+      originalImage: inputImage,
+      width: 512,
+      height: 512,
     }).catch(error => {
-      console.error('relightImage error:', error);
+      console.error('removeHair error:', error);
       throw error;
     });
 
@@ -43,21 +38,21 @@ describe('relightImage', () => {
     const durationMs = endTime - startTime;
     const durationSeconds = durationMs / 1000;
 
-    console.log(`relightImage execution time: ${durationMs.toFixed(2)} ms (${durationSeconds.toFixed(2)} seconds)`);
+    console.log(`removeHair execution time: ${durationMs.toFixed(2)} ms (${durationSeconds.toFixed(2)} seconds)`);
 
     // Verify result has content
     assert(result, 'No result returned');
     assert(result.byteLength > 0, 'Result ArrayBuffer is empty');
 
-    console.log('relightImage result:', {
+    console.log('removeHair result:', {
       resultSize: result.byteLength,
     });
 
-    // Save the relighted image
+    // Save the hair-removed image
     const outputPath = path.join(__dirname, 'result.jpeg');
     fs.writeFileSync(outputPath, Buffer.from(result));
-    console.log(`Relighted image saved to: ${outputPath}`);
+    console.log(`Hair-removed image saved to: ${outputPath}`);
 
-    console.log('relightImage eval test passed');
+    console.log('removeHair eval test passed');
   });
 });

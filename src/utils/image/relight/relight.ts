@@ -15,7 +15,7 @@ export async function relightImage({
   return await generateImageWithReferences({
     prompt: dedent`
       # Role:
-      You are an expert photo editor. Your task is to relight the image to match the reference image's lighting. Keep everything else the same.
+      You are an expert photo editor. Your task is to change the background and relight the face of the input image to match the reference image's background and lighting. The person in the input image should look like they are in the exact same location as the person in the reference image.
 
       # Specifications:
 
@@ -26,7 +26,10 @@ export async function relightImage({
       The second image provided.
 
       ## Final Image Requirements:
-      - The output image's style, lighting, shadows, reflections, and camera perspective must exactly match the reference image. Only modify the lighting, nothing else.
+      - The output image's style, lighting, shadows, and reflections must exactly match the reference image.
+      - If the reference image has lighting from a light source, the output image should also have lighting from the same light source. 
+      - If the reference image has backlighting, the output image should also have backlighting.
+      - If the reference image has shadows on the face, the output image should also have shadows on the face.
 
       The output should ONLY be the final, composed image. Do not add any text or explanation.
     `,
