@@ -1,103 +1,160 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import React, { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import { CameraIcon, PhotoIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
+import { clearUserSettings } from '@/utils/storage';
+import { useApp } from '@/contexts/AppContext';
+
+export default function HomePage() {
+  const router = useRouter();
+  const { userSettings, savedImages, isLoading, refreshUserSettings } = useApp();
+
+  // Check for user settings on mount
+  useEffect(() => {
+    if (!isLoading && !userSettings) {
+      router.replace('/onboarding');
+    }
+  }, [userSettings, isLoading, router]);
+
+  const handleRedoOnboarding = () => {
+    clearUserSettings();
+    refreshUserSettings();
+    router.replace('/onboarding');
+  };
+
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const uri = e.target?.result as string;
+        router.push(`/preview?uri=${encodeURIComponent(uri)}`);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="min-h-screen bg-white">
+      {/* Fixed Header */}
+      <div className="flex items-center justify-between px-4 py-6 mt-4 sm:px-6 sm:py-8">
+        <div className="flex-1" />
+        <div className="text-center">
+          <Image
+            src="/images/logo.png"
+            alt="Superstyle"
+            width={200}
+            height={60}
+            className="h-auto w-auto max-w-full"
+            priority
+          />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+        <div className="flex-1 flex justify-end">
+          <button
+            onClick={handleRedoOnboarding}
+            className="rounded-lg bg-secondary px-3 py-2 transition-colors hover:bg-secondary/80 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            aria-label="Settings"
+          >
+            <Cog6ToothIcon className="h-5 w-5 text-gray-700" />
+          </button>
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex-1 px-4 sm:px-6 lg:px-8">
+        {isLoading ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="text-center">
+              <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-primary"></div>
+              <div className="text-lg text-gray-500">Loading your styles...</div>
+            </div>
+          </div>
+        ) : savedImages.length === 0 ? (
+          // Empty state
+          <div className="mx-auto max-w-md lg:max-w-lg">
+            <div className="rounded-xl border border-gray-300 px-6 py-16 text-center sm:py-20">
+              <div className="mb-6">
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 sm:h-20 sm:w-20">
+                  <PhotoIcon className="h-8 w-8 text-gray-400 sm:h-10 sm:w-10" />
+                </div>
+                <h3 className="mb-2 text-xl font-semibold text-gray-900 sm:text-2xl">
+                  No styles yet
+                </h3>
+                <p className="text-md text-gray-500 sm:text-lg">
+                  Create your first hairstyle by taking a photo or choosing from
+                  your gallery
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : (
+          // Saved images grid
+          <div className="mx-auto max-w-7xl">
+            <div className="mb-6">
+              <h2 className="text-lg font-semibold text-gray-900 sm:text-xl">
+                Your Styles ({savedImages.length})
+              </h2>
+            </div>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5">
+              {savedImages.map((image) => (
+                <div
+                  key={image.id}
+                  className="group relative aspect-square overflow-hidden rounded-xl bg-gray-100 cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                  onClick={() => {
+                    // TODO: Navigate to image detail view
+                    console.log('Open image details:', image.id);
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      console.log('Open image details:', image.id);
+                    }
+                  }}
+                >
+                  <Image
+                    src={image.uri}
+                    alt="Generated hairstyle"
+                    fill
+                    className="object-cover transition-transform duration-200 group-hover:scale-110"
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 20vw"
+                  />
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2 sm:p-3">
+                    <div className="text-xs font-medium text-white sm:text-sm">Style</div>
+                    <div className="text-xs text-gray-300">
+                      {new Date(image.timestamp).toLocaleDateString()}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Fixed Bottom Actions */}
+      <div className="flex justify-center gap-4 p-6 sm:gap-6 sm:p-8">
+        <button
+          onClick={() => router.push('/capture')}
+          className="flex h-20 w-20 items-center justify-center rounded-full bg-primary shadow-lg-light transition-all duration-200 hover:scale-105 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 sm:h-24 sm:w-24"
+          aria-label="Take a photo"
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+          <CameraIcon className="h-8 w-8 text-gray-700 sm:h-10 sm:w-10" />
+        </button>
+
+        <label className="flex h-20 w-20 items-center justify-center rounded-full bg-secondary shadow-lg-light cursor-pointer transition-all duration-200 hover:scale-105 hover:shadow-xl focus-within:ring-2 focus-within:ring-primary focus-within:ring-offset-2 sm:h-24 sm:w-24">
+          <PhotoIcon className="h-7 w-7 text-gray-700 sm:h-8 sm:w-8" />
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleFileUpload}
+            className="sr-only"
+            aria-label="Upload a photo"
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        </label>
+      </div>
     </div>
   );
 }
