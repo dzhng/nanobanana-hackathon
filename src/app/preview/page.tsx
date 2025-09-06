@@ -109,7 +109,7 @@ function PreviewContent() {
     };
 
     fetchReferences();
-  }, [router, userSettings, uri]);
+  }, [router, userSettings, uri, tempId]);
 
   // Generate hairstyle
   const handleGenerateImage = async () => {
