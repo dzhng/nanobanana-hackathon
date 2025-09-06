@@ -1,0 +1,63 @@
+'use client';
+
+import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { UserSettings, SavedImage, getUserSettings, getSavedImages } from '@/utils/storage';
+
+interface AppContextType {
+  userSettings: UserSettings | null;
+  savedImages: SavedImage[];
+  isLoading: boolean;
+  refreshSavedImages: () => void;
+  refreshUserSettings: () => void;
+}
+
+const AppContext = createContext<AppContextType | undefined>(undefined);
+
+interface AppProviderProps {
+  children: ReactNode;
+}
+
+export function AppProvider({ children }: AppProviderProps) {
+  const [userSettings, setUserSettings] = useState<UserSettings | null>(null);
+  const [savedImages, setSavedImages] = useState<SavedImage[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const refreshUserSettings = () => {
+    const settings = getUserSettings();
+    setUserSettings(settings);
+  };
+
+  const refreshSavedImages = () => {
+    const images = getSavedImages();
+    setSavedImages(images);
+  };
+
+  useEffect(() => {
+    // Load initial data
+    refreshUserSettings();
+    refreshSavedImages();
+    setIsLoading(false);
+  }, []);
+
+  const value: AppContextType = {
+    userSettings,
+    savedImages,
+    isLoading,
+    refreshSavedImages,
+    refreshUserSettings,
+  };
+
+  return (
+    <AppContext.Provider value={value}>
+      {children}
+    </AppContext.Provider>
+  );
+}
+
+export function useApp() {
+  const context = useContext(AppContext);
+  if (context === undefined) {
+    throw new Error('useApp must be used within an AppProvider');
+  }
+  return context;
+}
