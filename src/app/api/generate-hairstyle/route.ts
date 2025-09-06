@@ -73,7 +73,7 @@ async function generateHairstyle({
       The first image provided. Replace this image's hairstyle with the reference hairstyle.
 
       ## New hairstyle reference image:
-      The second image provided.
+      I will provide you with a reference image of a hairstyle.
 
       ## New hairstyle description:
       ${toXML(referenceHairDescription)}

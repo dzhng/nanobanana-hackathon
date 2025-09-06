@@ -1,4 +1,5 @@
 import dedent from 'dedent';
+
 import { generateImageWithReferences } from '../image-generation/image-generation';
 
 export async function relightImage({
@@ -23,7 +24,7 @@ export async function relightImage({
       The first image provided.
 
       ## Image to use as reference:
-      The second image provided.
+      I will provide you with a reference image to use for relighting.
 
       ## Final Image Requirements:
       - The output image's style, lighting, shadows, and reflections must exactly match the reference image.

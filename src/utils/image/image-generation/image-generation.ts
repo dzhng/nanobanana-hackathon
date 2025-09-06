@@ -62,6 +62,32 @@ export async function generateImageWithReferences({
     }),
   );
 
+  const referenceMessages =
+    referenceImageUrls.length > 0
+      ? [
+          {
+            role: 'assistant',
+            content: compact([
+              {
+                type: 'text',
+                text: 'Ok, please provide the reference images',
+              },
+            ]),
+          },
+          {
+            role: 'user',
+            content: compact([
+              ...referenceImageUrls.map(imageUrl => ({
+                type: 'image_url',
+                image_url: {
+                  url: imageUrl,
+                },
+              })),
+            ]),
+          },
+        ]
+      : [];
+
   // Build the message content with images
   const messages = [
     {
@@ -73,18 +99,13 @@ export async function generateImageWithReferences({
             url: originalImageUrl,
           },
         },
-        ...referenceImageUrls.map(imageUrl => ({
-          type: 'image_url',
-          image_url: {
-            url: imageUrl,
-          },
-        })),
         {
           type: 'text',
           text: prompt,
         },
       ]),
     },
+    ...referenceMessages,
   ];
 
   // Make the direct API call
