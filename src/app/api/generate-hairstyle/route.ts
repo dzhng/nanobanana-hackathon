@@ -4,8 +4,10 @@ import dedent from 'dedent';
 import z from 'zod';
 
 import { gpt5MiniModel } from '@/utils/ai/providers';
-import { createFaceMorphGif } from '@/utils/image/face-morph';
-import { generateImageWithReferences } from '@/utils/image/image-generation';
+import { createFaceMorphGif } from '@/utils/image/facemorph/face-morph';
+import { generateImageWithReferences } from '@/utils/image/image-generation/image-generation';
+import { removeHair } from '@/utils/image/remove-hair/remove-hair';
+import { relightImage } from '@/utils/image/relight/relight';
 
 async function generateHairstyle({
   originalImage,
@@ -32,14 +34,19 @@ async function generateHairstyle({
     referenceImages.map(async image => image.arrayBuffer()),
   );
 
-  const cleanedImage = await generateImageWithReferences({
-    prompt: dedent`
-      Remove all the hair from this person, this person should be bald. Keep everything else the same.
-    `,
-    originalImage: originalImageArrayBuffer,
-    width: finalWidth,
-    height: finalHeight,
-  });
+  const [cleanedImage, relitReference] = await Promise.all([
+    removeHair({
+      originalImage: originalImageArrayBuffer,
+      width: finalWidth,
+      height: finalHeight,
+    }),
+    relightImage({
+      imageToRelight: referenceImageArrayBuffers[0],
+      referenceImage: originalImageArrayBuffer,
+      width: finalWidth,
+      height: finalHeight,
+    })
+  ]);
 
   const generatedImage = await generateImageWithReferences({
     prompt: dedent`
@@ -64,7 +71,7 @@ async function generateHairstyle({
       The output should ONLY be the final, composed image. Do not add any text or explanation.
     `,
     originalImage: cleanedImage,
-    referenceImages: referenceImageArrayBuffers,
+    referenceImages: [relitReference],
     width: finalWidth,
     height: finalHeight,
   });
@@ -82,7 +89,7 @@ async function generateHairstyle({
           },
           {
             type: 'image',
-            image: referenceImageArrayBuffers[0],
+            image: relitReference,
           },
           {
             type: 'text',

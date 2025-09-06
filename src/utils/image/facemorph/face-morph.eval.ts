@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { describe, it } from 'node:test';
 
-import { createFaceMorphGif } from './face-morph';
+import { createFaceMorphGif } from '../facemorph/face-morph';
 
 describe('face-morph', () => {
   it('should create face morph GIF from two images', async () => {
