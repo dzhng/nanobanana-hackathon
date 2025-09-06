@@ -1,13 +1,18 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
-import { getReferenceStyles, generateHairstyle, ReferenceStyle } from '@/utils/api';
-import { saveGeneratedImage, getTempImage } from '@/utils/storage';
-import { useApp } from '@/contexts/AppContext';
+
 import { useToast } from '@/components/Toast';
+import { useApp } from '@/contexts/AppContext';
+import {
+  generateHairstyle,
+  getReferenceStyles,
+  ReferenceStyle,
+} from '@/utils/api';
+import { getTempImage, saveGeneratedImage } from '@/utils/storage';
 
 const GifDurationMs = 1000;
 
@@ -18,9 +23,10 @@ export default function PreviewPage() {
   const uri = tempId ? getTempImage(tempId) : searchParams.get('uri');
   const { userSettings, refreshSavedImages } = useApp();
   const { showToast } = useToast();
-  
+
   const [references, setReferences] = useState<ReferenceStyle[]>([]);
-  const [selectedReference, setSelectedReference] = useState<ReferenceStyle | null>(null);
+  const [selectedReference, setSelectedReference] =
+    useState<ReferenceStyle | null>(null);
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [generationResult, setGenerationResult] = useState<{
@@ -41,7 +47,6 @@ export default function PreviewPage() {
     }
   }, [generationResult, showFinalImage]);
 
-
   // Fetch reference styles
   useEffect(() => {
     const fetchReferences = async () => {
@@ -49,7 +54,7 @@ export default function PreviewPage() {
       console.log('Preview page - tempId:', tempId);
       console.log('Preview page - uri:', uri);
       console.log('Preview page - uri length:', uri?.length || 0);
-      
+
       if (!userSettings) {
         console.log('No user settings found, redirecting to onboarding');
         router.replace('/onboarding');
@@ -160,12 +165,12 @@ export default function PreviewPage() {
 
   if (!uri) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-white">
         <div className="text-center">
           <p className="text-lg text-gray-500">No image provided</p>
           <button
             onClick={() => router.back()}
-            className="mt-4 text-primary hover:underline"
+            className="text-primary mt-4 hover:underline"
           >
             Go back
           </button>
@@ -177,10 +182,10 @@ export default function PreviewPage() {
   return (
     <div className="min-h-screen bg-white">
       {/* Back Button */}
-      <div className="absolute left-4 top-16 z-10">
+      <div className="absolute top-16 left-4 z-10">
         <button
           onClick={() => router.back()}
-          className="rounded-lg bg-secondary px-4 py-3 transition-colors hover:bg-secondary/80"
+          className="bg-secondary hover:bg-secondary/80 rounded-lg px-4 py-3 transition-colors"
         >
           <ArrowLeftIcon className="h-6 w-6 text-gray-700" />
         </button>
@@ -220,27 +225,50 @@ export default function PreviewPage() {
                 className="object-cover"
               />
             )}
+
+            {/* Loading overlay during generation */}
+            {generating && !generationResult?.morphingGif && (
+              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/50">
+                <div className="flex flex-col items-center gap-4">
+                  {/* Spinning loader */}
+                  <div className="relative">
+                    <div className="h-16 w-16 animate-spin rounded-full border-4 border-white/30 border-t-white"></div>
+                    <div className="absolute inset-2 animate-ping rounded-full border-4 border-white/20"></div>
+                  </div>
+
+                  {/* Loading text */}
+                  <div className="text-center text-white">
+                    <p className="mb-2 text-lg font-semibold">
+                      Generating your hairstyle
+                    </p>
+                    <p className="text-sm opacity-90">
+                      This may take up to a minute...
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
       {/* Reference Style Selector */}
-      <div className="h-48 bg-gray-100 mt-8">
+      <div className="mt-8 h-48 bg-gray-100">
         {loading ? (
-          <div className="flex items-center justify-center h-full">
+          <div className="flex h-full items-center justify-center">
             <div className="text-gray-500">Loading styles...</div>
           </div>
         ) : error ? (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-red-500 text-center px-4">{error}</div>
+          <div className="flex h-full items-center justify-center">
+            <div className="px-4 text-center text-red-500">{error}</div>
           </div>
         ) : references.length === 0 ? (
-          <div className="flex items-center justify-center h-full">
+          <div className="flex h-full items-center justify-center">
             <div className="text-gray-500">No reference styles found</div>
           </div>
         ) : (
           <div className="h-full overflow-x-auto">
-            <div className="flex gap-3 p-4 h-full">
+            <div className="flex h-full gap-3 p-4">
               {references.map((reference, index) => (
                 <button
                   key={index}
@@ -267,15 +295,15 @@ export default function PreviewPage() {
       </div>
 
       {/* Action Buttons */}
-      <div className="flex items-center justify-center gap-4 p-6 bg-white/80">
+      <div className="flex items-center justify-center gap-4 bg-white/80 p-6">
         {/* Save button - only show if we have a generated image */}
         {generationResult?.generatedImage && (
           <button
             onClick={handleSaveImage}
             disabled={saving}
-            className={`flex-1 max-w-32 rounded-lg px-4 py-3 font-semibold transition-colors ${
-              saving 
-                ? 'bg-green-400 text-white' 
+            className={`max-w-32 flex-1 rounded-lg px-4 py-3 font-semibold transition-colors ${
+              saving
+                ? 'bg-green-400 text-white'
                 : 'bg-green-500 text-white hover:bg-green-600'
             }`}
           >
@@ -287,10 +315,10 @@ export default function PreviewPage() {
         <button
           onClick={handleGenerateImage}
           disabled={generating || !selectedReference}
-          className={`flex-1 max-w-48 rounded-lg px-4 py-3 font-semibold transition-colors ${
+          className={`max-w-48 flex-1 rounded-lg px-4 py-3 font-semibold transition-colors ${
             generating || !selectedReference
-              ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
-              : 'bg-primary text-black hover:bg-primary/90'
+              ? 'cursor-not-allowed bg-gray-400 text-gray-600'
+              : 'bg-primary hover:bg-primary/90 text-black'
           }`}
         >
           {generating
@@ -298,11 +326,10 @@ export default function PreviewPage() {
               ? 'Transforming...'
               : 'Generating...'
             : generationResult?.generatedImage
-            ? 'Regenerate'
-            : 'Apply Style'}
+              ? 'Regenerate'
+              : 'Apply Style'}
         </button>
       </div>
     </div>
   );
 }
-
