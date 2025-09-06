@@ -26,6 +26,9 @@ describe('generateHairstyle', () => {
     const referenceImagePath = path.join(__dirname, 'reference.jpeg');
     const referenceImage = createFileFromPath(referenceImagePath, 'reference.jpeg');
 
+    // Start timing
+    const startTime = performance.now();
+
     // Call generateHairstyle function
     const result = await generateHairstyle({
       originalImage,
@@ -37,6 +40,13 @@ describe('generateHairstyle', () => {
       console.error('generateHairstyle error:', error);
       throw error;
     });
+
+    // End timing
+    const endTime = performance.now();
+    const durationMs = endTime - startTime;
+    const durationSeconds = durationMs / 1000;
+
+    console.log(`generateHairstyle execution time: ${durationMs.toFixed(2)} ms (${durationSeconds.toFixed(2)} seconds)`);
 
     // Verify result has content
     assert(result, 'No result returned');
