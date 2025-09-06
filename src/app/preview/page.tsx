@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ArrowLeftIcon } from '@heroicons/react/24/outline';
+import { ArrowLeftIcon, PencilIcon } from '@heroicons/react/24/outline';
 
 import { useToast } from '@/components/Toast';
 import { useApp } from '@/contexts/AppContext';
@@ -12,7 +12,57 @@ import {
   getReferenceStyles,
   ReferenceStyle,
 } from '@/utils/api';
-import { getTempImage, saveGeneratedImage } from '@/utils/storage';
+import { getTempImage, saveGeneratedImage, UserSettings, setUserSettings, HairColor, Ethnicity, Sex } from '@/utils/storage';
+
+// Emoji options matching onboarding
+type EmojiOption = {
+  image: string;
+  settings: UserSettings;
+  label: string;
+};
+
+const emojiOptions: EmojiOption[] = [
+  {
+    image: '/images/emojis/female-brown.png',
+    settings: { sex: 'female' as Sex, haircolor: 'brown' as HairColor, ethnicity: 'white' as Ethnicity },
+    label: 'Female • White • Brown Hair'
+  },
+  {
+    image: '/images/emojis/female-asian.png', 
+    settings: { sex: 'female' as Sex, haircolor: 'black' as HairColor, ethnicity: 'asian' as Ethnicity },
+    label: 'Female • Asian • Black Hair'
+  },
+  {
+    image: '/images/emojis/female-blonde.png',
+    settings: { sex: 'female' as Sex, haircolor: 'blonde' as HairColor, ethnicity: 'white' as Ethnicity },
+    label: 'Female • White • Blonde Hair'
+  },
+  {
+    image: '/images/emojis/female-black.png',
+    settings: { sex: 'female' as Sex, haircolor: 'brown' as HairColor, ethnicity: 'black' as Ethnicity },
+    label: 'Female • Black • Brown Hair'
+  },
+  {
+    image: '/images/emojis/male-brown.png',
+    settings: { sex: 'male' as Sex, haircolor: 'brown' as HairColor, ethnicity: 'white' as Ethnicity },
+    label: 'Male • White • Brown Hair'
+  },
+  {
+    image: '/images/emojis/male-asian.png',
+    settings: { sex: 'male' as Sex, haircolor: 'black' as HairColor, ethnicity: 'asian' as Ethnicity },
+    label: 'Male • Asian • Black Hair'
+  },
+  {
+    image: '/images/emojis/male-blonde.png',
+    settings: { sex: 'male' as Sex, haircolor: 'blonde' as HairColor, ethnicity: 'white' as Ethnicity },
+    label: 'Male • White • Blonde Hair'
+  },
+  {
+    image: '/images/emojis/male-black.png',
+    settings: { sex: 'male' as Sex, haircolor: 'brown' as HairColor, ethnicity: 'black' as Ethnicity },
+    label: 'Male • Black • Brown Hair'
+  },
+];
 
 const GifDurationMs = 1000;
 
@@ -21,7 +71,7 @@ export default function PreviewPage() {
   const searchParams = useSearchParams();
   const tempId = searchParams.get('tempId');
   const uri = tempId ? getTempImage(tempId) : searchParams.get('uri');
-  const { userSettings, refreshSavedImages } = useApp();
+  const { userSettings, refreshSavedImages, refreshUserSettings } = useApp();
   const { showToast } = useToast();
 
   const [references, setReferences] = useState<ReferenceStyle[]>([]);
@@ -36,6 +86,9 @@ export default function PreviewPage() {
   const [showFinalImage, setShowFinalImage] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  // Local editable settings state
+  const [editableSettings, setEditableSettings] = useState<UserSettings | null>(null);
 
   // Handle morphing gif transition
   useEffect(() => {
@@ -47,17 +100,26 @@ export default function PreviewPage() {
     }
   }, [generationResult, showFinalImage]);
 
+  // Sync editable settings with user settings
+  useEffect(() => {
+    if (userSettings) {
+      setEditableSettings(userSettings);
+    }
+  }, [userSettings]);
+
   // Fetch reference styles
   useEffect(() => {
     const fetchReferences = async () => {
-      console.log('Preview page - userSettings:', userSettings);
+      console.log('Preview page - editableSettings:', editableSettings);
       console.log('Preview page - tempId:', tempId);
       console.log('Preview page - uri:', uri);
       console.log('Preview page - uri length:', uri?.length || 0);
 
-      if (!userSettings) {
-        console.log('No user settings found, redirecting to onboarding');
-        router.replace('/onboarding');
+      if (!editableSettings) {
+        if (!userSettings) {
+          console.log('No user settings found, redirecting to onboarding');
+          router.replace('/onboarding');
+        }
         return;
       }
 
@@ -70,14 +132,14 @@ export default function PreviewPage() {
 
       try {
         console.log('Fetching reference styles with params:', {
-          sex: userSettings.sex,
-          ethnicity: userSettings.ethnicity,
+          sex: editableSettings.sex,
+          ethnicity: editableSettings.ethnicity,
           maxRecords: 100,
         });
 
         const data = await getReferenceStyles({
-          sex: userSettings.sex,
-          ethnicity: userSettings.ethnicity,
+          sex: editableSettings.sex,
+          ethnicity: editableSettings.ethnicity,
           maxRecords: 100,
         });
 
@@ -85,7 +147,7 @@ export default function PreviewPage() {
 
         // Sort by hair color: same hair color first, then others
         const sortedData = data.sort((a, b) => {
-          const userHairColor = userSettings.haircolor;
+          const userHairColor = editableSettings.haircolor;
           const scoreA = a.haircolor === userHairColor ? 1 : 0;
           const scoreB = b.haircolor === userHairColor ? 1 : 0;
 
@@ -96,6 +158,7 @@ export default function PreviewPage() {
         });
 
         setReferences(sortedData);
+        setSelectedReference(null); // Clear selection when styles change
         console.log('Reference styles set successfully');
       } catch (error) {
         console.error('Failed to fetch reference styles:', error);
@@ -106,7 +169,7 @@ export default function PreviewPage() {
     };
 
     fetchReferences();
-  }, [router, userSettings, uri, tempId]);
+  }, [router, editableSettings, uri, tempId]);
 
   // Generate hairstyle
   const handleGenerateImage = async () => {
@@ -161,6 +224,14 @@ export default function PreviewPage() {
     } finally {
       setSaving(false);
     }
+  };
+
+  // Handle emoji selection
+  const handleEmojiSelection = (selectedOption: EmojiOption) => {
+    setEditableSettings(selectedOption.settings);
+    setUserSettings(selectedOption.settings);
+    refreshUserSettings();
+    showToast('Settings updated! ✨', 'success');
   };
 
   if (!uri) {
@@ -276,8 +347,49 @@ export default function PreviewPage() {
         )}
       </div>
 
+      {/* Settings Info Bar - Always Visible */}
+      {editableSettings && (
+        <div className="mt-6 border-t border-gray-200 bg-gray-50 px-4 py-4">
+          <div className="mx-auto max-w-4xl">
+            <div className="space-y-4">
+              <div className="text-center">
+                <h3 className="text-lg font-semibold text-black">Choose your avatar ✨</h3>
+                <p className="text-sm text-gray-600">Pick the one that matches you best!</p>
+              </div>
+              
+              <div className="grid grid-cols-4 gap-3 sm:grid-cols-8">
+                {emojiOptions.map((option, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleEmojiSelection(option)}
+                    className={`rounded-2xl p-3 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+                      editableSettings.sex === option.settings.sex &&
+                      editableSettings.ethnicity === option.settings.ethnicity &&
+                      editableSettings.haircolor === option.settings.haircolor
+                        ? 'border-2 border-primary bg-primary shadow-lg focus:ring-primary'
+                        : 'border-2 border-gray-200 bg-white hover:border-primary/50 hover:shadow-md focus:ring-primary/50'
+                    }`}
+                    aria-label={option.label}
+                  >
+                    <div className="flex items-center justify-center h-10 w-10 sm:h-12 sm:w-12">
+                      <Image
+                        src={option.image}
+                        alt={option.label}
+                        width={48}
+                        height={48}
+                        className="object-contain"
+                      />
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Reference Style Selector */}
-      <div className="mt-8 h-48 bg-gray-100">
+      <div className="h-48 bg-gray-100">
         {loading ? (
           <div className="flex h-full items-center justify-center">
             <div className="text-gray-500">Loading styles...</div>
@@ -292,7 +404,7 @@ export default function PreviewPage() {
           </div>
         ) : (
           <div className="h-full overflow-x-auto">
-            <div className="flex h-full gap-3 p-4">
+            <div className="flex h-full gap-3 p-4 justify-center min-w-full">
               {references.map((reference, index) => (
                 <button
                   key={index}
