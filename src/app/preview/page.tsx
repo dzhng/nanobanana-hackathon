@@ -461,7 +461,7 @@ function PreviewPageContent() {
                       : 'border-gray-300 hover:border-gray-400'
                   }`}
                 >
-                  <div className="relative h-36 w-28">
+                  <div className="relative h-full w-28">
                     <Image
                       src={reference.imageUrl}
                       alt={reference.name}
