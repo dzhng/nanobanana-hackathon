@@ -133,9 +133,9 @@ export default function OnboardingPage() {
         </div>
 
         {/* Emoji Grid */}
-        <div className="mb-10 sm:mb-12">
+        <div className="mb-8 sm:mb-10">
           {/* Female Section */}
-          <div className="mb-12 sm:mb-16">
+          <div className="mb-8 sm:mb-10">
             <h2 className="mb-6 text-center text-lg font-semibold text-black sm:text-xl">
               Female
             </h2>
