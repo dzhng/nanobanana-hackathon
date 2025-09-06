@@ -1,7 +1,19 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { UserSettings, SavedImage, getUserSettings, getSavedImages } from '@/utils/storage';
+import React, {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
+
+import {
+  getSavedImages,
+  getUserSettings,
+  SavedImage,
+  UserSettings,
+} from '@/utils/storage';
 
 interface AppContextType {
   userSettings: UserSettings | null;
@@ -50,11 +62,7 @@ export function AppProvider({ children }: AppProviderProps) {
     refreshUserSettings,
   };
 
-  return (
-    <AppContext.Provider value={value}>
-      {children}
-    </AppContext.Provider>
-  );
+  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 }
 
 export function useApp() {
