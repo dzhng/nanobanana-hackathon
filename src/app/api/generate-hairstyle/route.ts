@@ -164,6 +164,7 @@ export async function generateHairstyleWithRetry({
   widthValue,
   heightValue,
   durationMsValue,
+  shouldEvaluateResult,
   maxRetries = 2,
 }: {
   originalImage: File;
@@ -171,6 +172,7 @@ export async function generateHairstyleWithRetry({
   widthValue?: number;
   heightValue?: number;
   durationMsValue?: number;
+  shouldEvaluateResult?: boolean;
   maxRetries?: number;
 }): Promise<{
   generatedImage: Buffer;
@@ -186,6 +188,7 @@ export async function generateHairstyleWithRetry({
         widthValue,
         heightValue,
         durationMsValue,
+        shouldEvaluateResult,
       });
     } catch (error) {
       lastError = error as Error;
@@ -290,6 +293,7 @@ export async function POST(req: NextRequest): Promise<
       widthValue,
       heightValue,
       durationMsValue,
+      shouldEvaluateResult: true,
     });
 
     // Convert buffers to base64 for JSON response
