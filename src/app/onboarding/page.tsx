@@ -13,7 +13,7 @@ type EmojiOption = {
 
 const FemaleEmojiOptions: EmojiOption[] = [
   {
-    image: '/public/images/emojis/female-brown.png',
+    image: '/images/emojis/female-brown.png',
     settings: {
       sex: 'female' as Sex,
       haircolor: 'brown' as HairColor,
@@ -21,7 +21,7 @@ const FemaleEmojiOptions: EmojiOption[] = [
     },
   },
   {
-    image: '/public/images/emojis/female-asian.png',
+    image: '/images/emojis/female-asian.png',
     settings: {
       sex: 'female' as Sex,
       haircolor: 'black' as HairColor,
@@ -29,7 +29,7 @@ const FemaleEmojiOptions: EmojiOption[] = [
     },
   },
   {
-    image: '/public/images/emojis/female-blonde.png',
+    image: '/images/emojis/female-blonde.png',
     settings: {
       sex: 'female' as Sex,
       haircolor: 'blonde' as HairColor,
@@ -37,7 +37,7 @@ const FemaleEmojiOptions: EmojiOption[] = [
     },
   },
   {
-    image: '/public/images/emojis/female-black.png',
+    image: '/images/emojis/female-black.png',
     settings: {
       sex: 'female' as Sex,
       haircolor: 'brown' as HairColor,
@@ -48,7 +48,7 @@ const FemaleEmojiOptions: EmojiOption[] = [
 
 const MaleEmojiOptions: EmojiOption[] = [
   {
-    image: '/public/images/emojis/male-brown.png',
+    image: '/images/emojis/male-brown.png',
     settings: {
       sex: 'male' as Sex,
       haircolor: 'brown' as HairColor,
@@ -56,7 +56,7 @@ const MaleEmojiOptions: EmojiOption[] = [
     },
   },
   {
-    image: '/public/images/emojis/male-asian.png',
+    image: '/images/emojis/male-asian.png',
     settings: {
       sex: 'male' as Sex,
       haircolor: 'black' as HairColor,
@@ -64,7 +64,7 @@ const MaleEmojiOptions: EmojiOption[] = [
     },
   },
   {
-    image: '/public/images/emojis/male-blonde.png',
+    image: '/images/emojis/male-blonde.png',
     settings: {
       sex: 'male' as Sex,
       haircolor: 'blonde' as HairColor,
@@ -72,7 +72,7 @@ const MaleEmojiOptions: EmojiOption[] = [
     },
   },
   {
-    image: '/public/images/emojis/male-black.png',
+    image: '/images/emojis/male-black.png',
     settings: {
       sex: 'male' as Sex,
       haircolor: 'brown' as HairColor,
@@ -117,7 +117,7 @@ export default function OnboardingPage() {
             <h1 className="mb-4 text-xl font-bold text-black sm:text-2xl lg:text-3xl">Welcome to</h1>
             <div className="flex justify-center">
               <Image
-                src="/public/images/logo.png"
+                src="/images/logo.png"
                 alt="Superstyle"
                 width={280}
                 height={84}

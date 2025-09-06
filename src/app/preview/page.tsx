@@ -1,17 +1,17 @@
 'use client';
 
-import React, { useEffect, useState, Suspense } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { getReferenceStyles, generateHairstyle, ReferenceStyle } from '@/utils/api';
-import { saveGeneratedImage, getTempImage, clearTempImage } from '@/utils/storage';
+import { saveGeneratedImage, getTempImage } from '@/utils/storage';
 import { useApp } from '@/contexts/AppContext';
 import { useToast } from '@/components/Toast';
 
 const GifDurationMs = 1000;
 
-function PreviewContent() {
+export default function PreviewPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const tempId = searchParams.get('tempId');
@@ -41,14 +41,6 @@ function PreviewContent() {
     }
   }, [generationResult, showFinalImage]);
 
-  // Cleanup temp image on unmount
-  useEffect(() => {
-    return () => {
-      if (tempId) {
-        clearTempImage(tempId);
-      }
-    };
-  }, [tempId]);
 
   // Fetch reference styles
   useEffect(() => {
@@ -314,14 +306,3 @@ function PreviewContent() {
   );
 }
 
-export default function PreviewPage() {
-  return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-lg text-gray-500">Loading...</div>
-      </div>
-    }>
-      <PreviewContent />
-    </Suspense>
-  );
-}

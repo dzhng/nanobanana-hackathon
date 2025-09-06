@@ -6,6 +6,10 @@ const nextConfig: NextConfig = {
     '/api/generate-hairstyle': ['./binary/*'],
   },
 
+  images: {
+    domains: ['v5.airtableusercontent.com'],
+  },
+
   /* config options here */
   async headers() {
     return [
