@@ -160,7 +160,7 @@ export default function HomePage() {
       </div>
 
       {/* Fixed Bottom Actions */}
-      <div className="flex justify-center gap-4 p-6 sm:gap-6 sm:p-8">
+      <div className="flex justify-center gap-4 pb-6 sm:gap-6">
         <button
           onClick={() => router.push('/capture')}
           className="shadow-lg-light flex h-20 w-20 items-center justify-center rounded-full bg-[#FFFC00] transition-all duration-200 hover:scale-105 hover:shadow-xl focus:ring-2 focus:ring-[#FFFC00] focus:ring-offset-2 focus:outline-none sm:h-24 sm:w-24"
