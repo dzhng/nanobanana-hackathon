@@ -149,7 +149,7 @@ export default function OnboardingPage() {
                   onClick={() => handleSelection(index)}
                   className={`rounded-2xl p-4 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 sm:p-5 ${
                     selectedIndex === index
-                      ? 'border-2 border-primary bg-primary shadow-lg focus:ring-primary'
+                      ? 'border-2 border-[#FFFC00] bg-[#FFFC00] shadow-lg focus:ring-[#FFFC00]'
                       : 'border-2 border-gray-300 bg-gray-100 hover:border-gray-400 hover:shadow-md focus:ring-gray-400'
                   }`}
                   disabled={isLoading}
@@ -186,7 +186,7 @@ export default function OnboardingPage() {
                     onClick={() => handleSelection(actualIndex)}
                     className={`rounded-2xl p-4 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 sm:p-5 ${
                       selectedIndex === actualIndex
-                        ? 'border-2 border-primary bg-primary shadow-lg focus:ring-primary'
+                        ? 'border-2 border-[#FFFC00] bg-[#FFFC00] shadow-lg focus:ring-[#FFFC00]'
                         : 'border-2 border-gray-300 bg-gray-100 hover:border-gray-400 hover:shadow-md focus:ring-gray-400'
                     }`}
                     disabled={isLoading}
@@ -214,7 +214,7 @@ export default function OnboardingPage() {
           disabled={selectedIndex === null || isLoading}
           className={`w-full rounded-xl px-6 py-4 text-lg font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 sm:text-xl ${
             selectedIndex !== null && !isLoading
-              ? 'bg-primary text-black hover:bg-primary/90 shadow-lg focus:ring-primary'
+              ? 'bg-[#FFFC00] text-black hover:bg-[#FFFC0080] shadow-lg focus:ring-[#FFFC00]'
               : 'bg-gray-300 text-gray-500 cursor-not-allowed opacity-50 focus:ring-gray-400'
           }`}
         >

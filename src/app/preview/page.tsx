@@ -170,7 +170,7 @@ function PreviewPageContent() {
           <p className="text-lg text-gray-500">No image provided</p>
           <button
             onClick={() => router.back()}
-            className="text-primary mt-4 hover:underline"
+            className="mt-4 text-[#FFFC00] hover:underline"
           >
             Go back
           </button>
@@ -185,7 +185,7 @@ function PreviewPageContent() {
       <div className="absolute top-16 left-4 z-10">
         <button
           onClick={() => router.back()}
-          className="bg-secondary hover:bg-secondary/80 rounded-lg px-4 py-3 transition-colors"
+          className="rounded-lg bg-[#F3F4F6] px-4 py-3 transition-colors hover:bg-[#F3F4F680]"
         >
           <ArrowLeftIcon className="h-6 w-6 text-gray-700" />
         </button>
@@ -275,7 +275,7 @@ function PreviewPageContent() {
                   onClick={() => setSelectedReference(reference)}
                   className={`flex-shrink-0 overflow-hidden rounded-xl border-4 transition-all ${
                     selectedReference?.imageUrl === reference.imageUrl
-                      ? 'border-primary shadow-lg'
+                      ? 'border-[#FFFC00] shadow-lg'
                       : 'border-gray-300 hover:border-gray-400'
                   }`}
                 >
@@ -315,10 +315,10 @@ function PreviewPageContent() {
         <button
           onClick={handleGenerateImage}
           disabled={generating || !selectedReference}
-          className={`max-w-48 flex-1 rounded-lg px-4 py-3 font-semibold transition-colors ${
+          className={`h-[52px] w-full flex-1 rounded-lg px-4 py-2 font-semibold transition-colors ${
             generating || !selectedReference
-              ? 'cursor-not-allowed bg-gray-400 text-gray-600'
-              : 'bg-primary hover:bg-primary/90 text-black'
+              ? 'cursor-not-allowed bg-[#FFFC0060] text-gray-700'
+              : 'bg-[#FFFC00] text-black hover:bg-[#FFFC00C0]'
           }`}
         >
           {generating
@@ -342,7 +342,7 @@ export default function PreviewPage() {
           <div className="text-center">
             <div className="flex flex-col items-center gap-4">
               <div className="relative">
-                <div className="border-primary/30 border-t-primary h-16 w-16 animate-spin rounded-full border-4"></div>
+                <div className="h-16 w-16 animate-spin rounded-full border-4 border-[#FFFC004D] border-t-[#FFFC00]"></div>
               </div>
               <p className="text-lg text-gray-500">Loading...</p>
             </div>

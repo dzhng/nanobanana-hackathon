@@ -74,7 +74,7 @@ export default function HomePage() {
         <div className="flex flex-1 justify-end">
           <button
             onClick={handleRedoOnboarding}
-            className="bg-secondary hover:bg-secondary/80 focus:ring-primary rounded-lg px-3 py-2 transition-colors focus:ring-2 focus:ring-offset-2 focus:outline-none"
+            className="rounded-lg bg-[#F3F4F6] px-3 py-2 transition-colors hover:bg-[#F3F4F680] focus:ring-2 focus:ring-[#FFFC00] focus:ring-offset-2 focus:outline-none"
             aria-label="Settings"
           >
             <Cog6ToothIcon className="h-5 w-5 text-gray-700" />
@@ -124,7 +124,7 @@ export default function HomePage() {
                 {savedImages.map(image => (
                   <div
                     key={image.id}
-                    className="group focus:ring-primary relative aspect-square cursor-pointer overflow-hidden rounded-xl bg-gray-100 transition-all duration-200 hover:scale-105 hover:shadow-lg focus:ring-2 focus:ring-offset-2 focus:outline-none"
+                    className="group relative aspect-square cursor-pointer overflow-hidden rounded-xl bg-gray-100 transition-all duration-200 hover:scale-105 hover:shadow-lg focus:ring-2 focus:ring-[#FFFC00] focus:ring-offset-2 focus:outline-none"
                     onClick={() => {
                       setSelectedImage(image);
                     }}
@@ -163,13 +163,13 @@ export default function HomePage() {
       <div className="flex justify-center gap-4 p-6 sm:gap-6 sm:p-8">
         <button
           onClick={() => router.push('/capture')}
-          className="bg-primary shadow-lg-light focus:ring-primary flex h-20 w-20 items-center justify-center rounded-full transition-all duration-200 hover:scale-105 hover:shadow-xl focus:ring-2 focus:ring-offset-2 focus:outline-none sm:h-24 sm:w-24"
+          className="shadow-lg-light flex h-20 w-20 items-center justify-center rounded-full bg-[#FFFC00] transition-all duration-200 hover:scale-105 hover:shadow-xl focus:ring-2 focus:ring-[#FFFC00] focus:ring-offset-2 focus:outline-none sm:h-24 sm:w-24"
           aria-label="Take a photo"
         >
-          <CameraIcon className="h-8 w-8 text-gray-700 sm:h-10 sm:w-10" />
+          <CameraIcon className="h-8 w-8 text-black sm:h-10 sm:w-10" />
         </button>
 
-        <label className="bg-secondary shadow-lg-light focus-within:ring-primary flex h-20 w-20 cursor-pointer items-center justify-center rounded-full transition-all duration-200 focus-within:ring-2 focus-within:ring-offset-2 hover:scale-105 hover:shadow-xl sm:h-24 sm:w-24">
+        <label className="shadow-lg-light flex h-20 w-20 cursor-pointer items-center justify-center rounded-full bg-[#F3F4F6] transition-all duration-200 focus-within:ring-2 focus-within:ring-[#FFFC00] focus-within:ring-offset-2 hover:scale-105 hover:shadow-xl sm:h-24 sm:w-24">
           <PhotoIcon className="h-7 w-7 text-gray-700 sm:h-8 sm:w-8" />
           <input
             type="file"
