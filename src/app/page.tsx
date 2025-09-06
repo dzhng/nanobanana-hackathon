@@ -4,7 +4,7 @@ import React, { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { CameraIcon, PhotoIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
-import { clearUserSettings } from '@/utils/storage';
+import { clearUserSettings, setTempImage } from '@/utils/storage';
 import { useApp } from '@/contexts/AppContext';
 
 export default function HomePage() {
@@ -26,11 +26,23 @@ export default function HomePage() {
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
+    console.log('Home page: File selected:', file);
+    
     if (file) {
+      console.log('Home page: Reading file as data URL');
       const reader = new FileReader();
       reader.onload = (e) => {
         const uri = e.target?.result as string;
-        router.push(`/preview?uri=${encodeURIComponent(uri)}`);
+        console.log('Home page: File read successfully');
+        console.log('Home page: URI length:', uri?.length || 0);
+        
+        // Store image in session storage to avoid URL length limits
+        const tempId = setTempImage(uri);
+        console.log('Home page: Stored temp image with ID:', tempId);
+        router.push(`/preview?tempId=${tempId}`);
+      };
+      reader.onerror = (e) => {
+        console.error('Home page: Error reading file:', e);
       };
       reader.readAsDataURL(file);
     }

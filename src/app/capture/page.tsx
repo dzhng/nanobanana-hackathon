@@ -4,6 +4,7 @@ import React, { useCallback, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Webcam from 'react-webcam';
 import { ArrowLeftIcon, CameraIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
+import { setTempImage } from '@/utils/storage';
 
 export default function CapturePage() {
   const router = useRouter();
@@ -34,13 +35,23 @@ export default function CapturePage() {
 
     try {
       setIsCapturing(true);
+      console.log('Capture page: Taking screenshot');
       const imageSrc = webcamRef.current.getScreenshot();
       
       if (imageSrc) {
-        router.push(`/preview?uri=${encodeURIComponent(imageSrc)}`);
+        console.log('Capture page: Screenshot successful, navigating to preview');
+        console.log('Capture page: Image URI length:', imageSrc.length);
+        
+        // Store image in session storage to avoid URL length limits
+        const tempId = setTempImage(imageSrc);
+        console.log('Capture page: Stored temp image with ID:', tempId);
+        router.push(`/preview?tempId=${tempId}`);
+      } else {
+        console.error('Capture page: No image captured');
+        setError('Failed to capture image. Please try again.');
       }
     } catch (error) {
-      console.error('Failed to capture image:', error);
+      console.error('Capture page: Failed to capture image:', error);
       setError('Failed to capture image. Please try again.');
     } finally {
       setIsCapturing(false);

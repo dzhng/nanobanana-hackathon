@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
 import { getReferenceStyles, generateHairstyle, ReferenceStyle } from '@/utils/api';
-import { saveGeneratedImage } from '@/utils/storage';
+import { saveGeneratedImage, getTempImage, clearTempImage } from '@/utils/storage';
 import { useApp } from '@/contexts/AppContext';
 import { useToast } from '@/components/Toast';
 
@@ -14,7 +14,8 @@ const GifDurationMs = 1000;
 function PreviewContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const uri = searchParams.get('uri');
+  const tempId = searchParams.get('tempId');
+  const uri = tempId ? getTempImage(tempId) : searchParams.get('uri');
   const { userSettings, refreshSavedImages } = useApp();
   const { showToast } = useToast();
   
@@ -40,20 +41,50 @@ function PreviewContent() {
     }
   }, [generationResult, showFinalImage]);
 
+  // Cleanup temp image on unmount
+  useEffect(() => {
+    return () => {
+      if (tempId) {
+        clearTempImage(tempId);
+      }
+    };
+  }, [tempId]);
+
   // Fetch reference styles
   useEffect(() => {
     const fetchReferences = async () => {
+      console.log('Preview page - userSettings:', userSettings);
+      console.log('Preview page - tempId:', tempId);
+      console.log('Preview page - uri:', uri);
+      console.log('Preview page - uri length:', uri?.length || 0);
+      
       if (!userSettings) {
+        console.log('No user settings found, redirecting to onboarding');
         router.replace('/onboarding');
         return;
       }
 
+      if (!uri) {
+        console.log('No image URI provided');
+        setError('No image provided');
+        setLoading(false);
+        return;
+      }
+
       try {
+        console.log('Fetching reference styles with params:', {
+          sex: userSettings.sex,
+          ethnicity: userSettings.ethnicity,
+          maxRecords: 100,
+        });
+
         const data = await getReferenceStyles({
           sex: userSettings.sex,
           ethnicity: userSettings.ethnicity,
           maxRecords: 100,
         });
+
+        console.log('Received reference styles:', data.length);
 
         // Sort by hair color: same hair color first, then others
         const sortedData = data.sort((a, b) => {
@@ -68,6 +99,7 @@ function PreviewContent() {
         });
 
         setReferences(sortedData);
+        console.log('Reference styles set successfully');
       } catch (error) {
         console.error('Failed to fetch reference styles:', error);
         setError('Failed to load hairstyle options. Please try again.');
@@ -77,7 +109,7 @@ function PreviewContent() {
     };
 
     fetchReferences();
-  }, [router, userSettings]);
+  }, [router, userSettings, uri]);
 
   // Generate hairstyle
   const handleGenerateImage = async () => {
