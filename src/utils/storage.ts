@@ -69,3 +69,24 @@ export function deleteSavedImage(imageId: string): void {
   const filteredImages = savedImages.filter(img => img.id !== imageId);
   localStorage.setItem('savedImages', JSON.stringify(filteredImages));
 }
+
+// Temporary image storage for navigation (avoids URL length limits)
+export function setTempImage(imageUri: string): string {
+  if (typeof window === 'undefined') return '';
+  
+  const tempId = Date.now().toString();
+  sessionStorage.setItem(`tempImage_${tempId}`, imageUri);
+  return tempId;
+}
+
+export function getTempImage(tempId: string): string | null {
+  if (typeof window === 'undefined') return null;
+  
+  return sessionStorage.getItem(`tempImage_${tempId}`);
+}
+
+export function clearTempImage(tempId: string): void {
+  if (typeof window === 'undefined') return;
+  
+  sessionStorage.removeItem(`tempImage_${tempId}`);
+}

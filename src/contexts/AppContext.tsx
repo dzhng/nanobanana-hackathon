@@ -24,6 +24,7 @@ export function AppProvider({ children }: AppProviderProps) {
 
   const refreshUserSettings = () => {
     const settings = getUserSettings();
+    console.log('AppContext: Refreshed user settings:', settings);
     setUserSettings(settings);
   };
 
@@ -34,9 +35,11 @@ export function AppProvider({ children }: AppProviderProps) {
 
   useEffect(() => {
     // Load initial data
+    console.log('AppContext: Loading initial data');
     refreshUserSettings();
     refreshSavedImages();
     setIsLoading(false);
+    console.log('AppContext: Initial data loading complete');
   }, []);
 
   const value: AppContextType = {
