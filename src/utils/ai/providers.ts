@@ -12,4 +12,4 @@ export const openRouter = createOpenRouter({
 
 // Models
 
-export const gpt5MiniModel = openRouter('openai/gpt-5-mini');
+export const gpt5MiniModel = openRouter('openai/gpt-4o-mini');

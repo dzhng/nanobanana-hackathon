@@ -23,7 +23,7 @@ formData.append('numGenerations', '3');        // Use 3 instead of 5
 
 ---
 
-## 📊 Performance Results
+## 📊 Performance Results (From Timing Benchmarks)
 
 | Mode | Time | Savings | When to Use |
 |------|------|---------|-------------|
@@ -31,6 +31,57 @@ formData.append('numGenerations', '3');        // Use 3 instead of 5
 | **Balanced** | 32.7s | -6s (16%) | Good speed/quality balance ⭐ |
 | **Skip Preprocessing** | 11.7s | -27s (70%) | Original has short hair |
 | **Fast Mode** | 10.8s | -28s (72%) | Quick previews, rapid testing |
+
+---
+
+## 🎨 Quality Test Results (With Actual Image Generation)
+
+| Configuration | Runtime | Description | Output File |
+|--------------|---------|-------------|-------------|
+| **numGen_1** | 23.4s | 1 generation with full preprocessing | `output_numGen_1.jpg` |
+| **numGen_3** | 38.5s | 3 generations with full preprocessing | `output_numGen_3.jpg` |
+| **numGen_5** (default) | 33.4s | 5 generations with full preprocessing | `output_numGen_5.jpg` |
+| **skip_remove_hair** | 35.1s | Skip only hair removal, 5 generations | `output_skip_remove_hair.jpg` |
+| **skip_relight** | 28.7s | Skip only relighting, 5 generations | `output_skip_relight.jpg` |
+| **skip_both_preprocessing** | 21.3s | Skip both preprocessing, 5 generations | `output_skip_both_preprocessing.jpg` |
+| **fast_mode** | 13.3s | Skip preprocessing, 1 gen, skip eval | `output_fast_mode.jpg` |
+
+### 📷 Visual Comparison
+
+#### Source Images
+
+| Original Image | Reference Hairstyle |
+|----------------|---------------------|
+| ![Original](outputs/original.jpg) | ![Reference](outputs/reference.jpeg) |
+
+#### Generation Count Tests (With Full Preprocessing)
+
+| numGen_1 (23.4s) | numGen_3 (38.5s) | numGen_5 (33.4s) |
+|------------------|------------------|------------------|
+| ![numGen_1](outputs/output_numGen_1.jpg) | ![numGen_3](outputs/output_numGen_3.jpg) | ![numGen_5](outputs/output_numGen_5.jpg) |
+| 1 generation | 3 generations | 5 generations (default) |
+
+#### Preprocessing Tests (5 Generations Each)
+
+| skip_remove_hair (35.1s) | skip_relight (28.7s) | skip_both (21.3s) |
+|-------------------------|---------------------|-------------------|
+| ![skip_remove_hair](outputs/output_skip_remove_hair.jpg) | ![skip_relight](outputs/output_skip_relight.jpg) | ![skip_both](outputs/output_skip_both_preprocessing.jpg) |
+| Skip hair removal only | Skip relighting only | Skip both preprocessing |
+
+#### Fast Mode
+
+| fast_mode (13.3s) |
+|-------------------|
+| ![fast_mode](outputs/output_fast_mode.jpg) |
+| Skip preprocessing + 1 gen + skip eval |
+
+### 🔍 Key Findings
+
+1. **Fast mode is 60% faster** than default (13.3s vs 33.4s)
+2. **Skipping both preprocessing saves ~12s** compared to default
+3. **Number of generations** has varying impact on time due to parallel processing
+4. **GPT evaluation works correctly** - selected different indices based on quality
+5. All modes produced valid outputs - **compare images above for quality assessment**
 
 ---
 
