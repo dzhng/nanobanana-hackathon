@@ -18,8 +18,8 @@ async function generateHairstyle({
   heightValue,
   durationMsValue,
   shouldEvaluateResult = false,
-  skipRemoveHair = false,
-  skipRelight = false,
+  skipRemoveHair = true,
+  skipRelight = true,
   numGenerations = 5,
   skipEvaluation = false,
 }: {
@@ -332,8 +332,9 @@ export async function POST(req: NextRequest): Promise<
     }
 
     // Parse optional performance config parameters
-    const skipRemoveHair = formData.get('skipRemoveHair') === 'true';
-    const skipRelight = formData.get('skipRelight') === 'true';
+    // Default to true (skip preprocessing) for optimal speed/quality balance
+    const skipRemoveHair = formData.get('skipRemoveHair') !== 'false';
+    const skipRelight = formData.get('skipRelight') !== 'false';
     const skipEvaluation = formData.get('skipEvaluation') === 'true';
 
     const numGenerationsParam = formData.get('numGenerations');
