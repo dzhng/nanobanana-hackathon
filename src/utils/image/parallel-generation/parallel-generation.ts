@@ -12,6 +12,7 @@ export async function generateImageWithReferenceParallel({
   width = 800,
   height = 800,
   numGenerations = 3,
+  skipEvaluation = false,
 }: {
   prompt: string;
   originalImage: ArrayBuffer;
@@ -19,6 +20,7 @@ export async function generateImageWithReferenceParallel({
   width?: number;
   height?: number;
   numGenerations?: number;
+  skipEvaluation?: boolean;
 }): Promise<ArrayBuffer> {
   // Generate multiple images in parallel
   const results = await Promise.allSettled(
@@ -48,8 +50,8 @@ export async function generateImageWithReferenceParallel({
     throw new Error('All image generations failed');
   }
 
-  // If only one successful result, return it
-  if (successfulResults.length === 1) {
+  // If only one successful result or evaluation is skipped, return first result
+  if (skipEvaluation || successfulResults.length === 1) {
     const result = successfulResults[0];
     return result.image!;
   }
@@ -122,6 +124,6 @@ export async function generateImageWithReferenceParallel({
     throw new Error('Selected best result is invalid');
   }
 
-  console.info('Evaluation result:', evaluation.object);
+  console.info('GPT evaluation result:', evaluation.object);
   return bestResult.image;
 }

@@ -18,6 +18,10 @@ async function generateHairstyle({
   heightValue,
   durationMsValue,
   shouldEvaluateResult = false,
+  skipRemoveHair = false,
+  skipRelight = false,
+  numGenerations = 5,
+  skipEvaluation = false,
 }: {
   originalImage: File;
   referenceImages: File[];
@@ -27,6 +31,12 @@ async function generateHairstyle({
 
   // if true, will use gpt5 to evaluate if the new hairstyle is generated correctly. costs extra latency
   shouldEvaluateResult?: boolean;
+  
+  // Performance optimization flags
+  skipRemoveHair?: boolean;
+  skipRelight?: boolean;
+  numGenerations?: number;
+  skipEvaluation?: boolean;
 }): Promise<{
   generatedImage: Buffer;
   morphingGif: Buffer | null;
@@ -44,22 +54,33 @@ async function generateHairstyle({
     throw new Error('At least one reference image is required');
   }
 
-  const [cleanedImage, relitReference, referenceHairDescription] =
-    await Promise.all([
-      removeHair({
+  // Conditionally run preprocessing steps based on flags
+  const cleanedImagePromise = skipRemoveHair
+    ? Promise.resolve(originalImageArrayBuffer)
+    : removeHair({
         originalImage: originalImageArrayBuffer,
         width: finalWidth,
         height: finalHeight,
-      }),
-      relightImage({
+      });
+  
+  const relitReferencePromise = skipRelight
+    ? Promise.resolve(referenceImageArrayBuffers[0])
+    : relightImage({
         imageToRelight: referenceImageArrayBuffers[0],
         referenceImage: originalImageArrayBuffer,
         width: finalWidth,
         height: finalHeight,
-      }),
-      describeHairstyle({
-        image: referenceImageArrayBuffers[0],
-      }),
+      });
+  
+  const referenceHairDescriptionPromise = describeHairstyle({
+    image: referenceImageArrayBuffers[0],
+  });
+
+  const [cleanedImage, relitReference, referenceHairDescription] =
+    await Promise.all([
+      cleanedImagePromise,
+      relitReferencePromise,
+      referenceHairDescriptionPromise,
     ]);
 
   const generatedImage = await generateImageWithReferenceParallel({
@@ -90,7 +111,8 @@ async function generateHairstyle({
     `,
     originalImage: cleanedImage,
     referenceImage: relitReference,
-    numGenerations: 5,
+    numGenerations,
+    skipEvaluation,
     width: finalWidth,
     height: finalHeight,
   });
@@ -165,6 +187,10 @@ export async function generateHairstyleWithRetry({
   heightValue,
   durationMsValue,
   shouldEvaluateResult,
+  skipRemoveHair,
+  skipRelight,
+  numGenerations,
+  skipEvaluation,
   maxRetries = 2,
 }: {
   originalImage: File;
@@ -173,6 +199,10 @@ export async function generateHairstyleWithRetry({
   heightValue?: number;
   durationMsValue?: number;
   shouldEvaluateResult?: boolean;
+  skipRemoveHair?: boolean;
+  skipRelight?: boolean;
+  numGenerations?: number;
+  skipEvaluation?: boolean;
   maxRetries?: number;
 }): Promise<{
   generatedImage: Buffer;
@@ -189,6 +219,10 @@ export async function generateHairstyleWithRetry({
         heightValue,
         durationMsValue,
         shouldEvaluateResult,
+        skipRemoveHair,
+        skipRelight,
+        numGenerations,
+        skipEvaluation,
       });
     } catch (error) {
       lastError = error as Error;
@@ -297,13 +331,35 @@ export async function POST(req: NextRequest): Promise<
       heightValue = parsedHeight;
     }
 
+    // Parse optional performance config parameters
+    const skipRemoveHair = formData.get('skipRemoveHair') === 'true';
+    const skipRelight = formData.get('skipRelight') === 'true';
+    const skipEvaluation = formData.get('skipEvaluation') === 'true';
+
+    const numGenerationsParam = formData.get('numGenerations');
+    let numGenerations = 5; // default
+    if (numGenerationsParam !== null) {
+      const parsed = parseInt(numGenerationsParam.toString(), 10);
+      if (isNaN(parsed) || parsed <= 0 || parsed > 10) {
+        return NextResponse.json(
+          { error: 'Field "numGenerations" must be a positive number between 1 and 10' },
+          { status: 400 },
+        );
+      }
+      numGenerations = parsed;
+    }
+
     const result = await generateHairstyleWithRetry({
-      originalImage,
-      referenceImages,
+      originalImage: originalImage as File,
+      referenceImages: referenceImages as File[],
       widthValue,
       heightValue,
       durationMsValue,
       shouldEvaluateResult: true,
+      skipRemoveHair,
+      skipRelight,
+      numGenerations,
+      skipEvaluation,
     });
 
     // Convert buffers to base64 for JSON response
