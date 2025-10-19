@@ -228,16 +228,26 @@ export async function POST(req: NextRequest): Promise<
     const formData = await req.formData();
 
     const originalImage = formData.get('originalImage');
-    if (!(originalImage instanceof File)) {
+    // Check if it's a File or Blob (Node.js uses Blob, browsers use File which extends Blob)
+    const isFileOrBlob = (v: unknown): boolean => {
+      return v instanceof Blob || (typeof File !== 'undefined' && v instanceof File);
+    };
+    
+    if (!originalImage || !isFileOrBlob(originalImage)) {
       return NextResponse.json(
         { error: 'Field "originalImage" is required and must be a file' },
         { status: 400 },
       );
     }
 
-    const referenceImages = formData
-      .getAll('referenceImages')
-      .filter((v): v is File => v instanceof File);
+    const allReferenceImages = formData.getAll('referenceImages');
+    const referenceImages: (File | Blob)[] = [];
+    for (const img of allReferenceImages) {
+      if (isFileOrBlob(img)) {
+        referenceImages.push(img as File | Blob);
+      }
+    }
+    
     if (referenceImages.length === 0) {
       return NextResponse.json(
         { error: 'At least one "referenceImages" file is required' },
